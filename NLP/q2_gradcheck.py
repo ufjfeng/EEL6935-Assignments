@@ -8,9 +8,10 @@ def gradcheck_naive(f, x):
     Gradient check for a function f 
     - f should be a function that takes a single argument and outputs the cost and its gradients
     - x is the point (numpy array) to check the gradient at
-    """ 
+    """
+    random.seed(314)
     rndstate = random.getstate()
-    random.setstate(rndstate)  
+    random.setstate(rndstate)
     fx, grad = f(x)  # Evaluate function value at original point
     h = 1e-4  # epsilon
 

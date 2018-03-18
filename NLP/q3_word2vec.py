@@ -86,7 +86,11 @@ def negSamplingCostAndGradient(predicted, target, outputVectors, dataset,
     # We will not provide starter code for this function, but feel    
     # free to reference the code you previously wrote for this        
     # assignment!
-    
+
+    # cost = 0.0
+    # grad = np.zeros_like(outputVectors)
+    # gradPred = np.zeros_like(predicted)
+
     # YOUR CODE HERE
     # raise NotImplementedError
     labels = np.array([1] + [-1] * K)
