@@ -18,7 +18,7 @@ for row in data_df.iterrows():
     Y.append(data['label'])
 X_encoded = np.array(X)
 Y_encoded = np.array(Y)
-X_train, X_test, Y_train, Y_test = train_test_split(X_encoded, Y_encoded, test_size=0.1, random_state=42)
+X_train, X_test, Y_train, Y_test = train_test_split(X_encoded, Y_encoded, test_size=0.4)
 X_train_oh = tf.layers.flatten(tf.one_hot(X_train, depth=4))
 X_test_oh = tf.layers.flatten(tf.one_hot(X_test, depth=4))
 
@@ -32,8 +32,9 @@ X_kaggle_enc = np.array(X_kaggle)
 X_kaggle_oh = tf.layers.flatten(tf.one_hot(X_kaggle_enc, depth=4))
 
 n_inputs = len(data_df['sequence'][0]) * len(BASE)
-n_hidden1 = 30
-n_hidden2 = 10
+n_hidden1 = 2048
+n_hidden2 = 128
+#n_hidden3 = 16
 n_outputs = 2
 
 X = tf.placeholder(tf.float32, shape=(None, n_inputs), name="X")
@@ -42,13 +43,14 @@ y = tf.placeholder(tf.int64, shape=None, name="y")
 with tf.name_scope("dnn"):
     hidden1 = tf.contrib.layers.fully_connected(X, n_hidden1, scope="hidden1")
     hidden2 = tf.contrib.layers.fully_connected(hidden1, n_hidden2, scope="hidden2")
+    #hidden3 = tf.contrib.layers.fully_connected(hidden2, n_hidden3, scope="hidden3")
     logits = tf.contrib.layers.fully_connected(hidden2, n_outputs, scope="outputs")
 
 with tf.name_scope("loss"):
     xentropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=y)
     loss = tf.reduce_mean(xentropy, name="loss")
 
-learning_rate = 0.01
+learning_rate = 0.001
 with tf.name_scope("train"):
     optimizer = tf.train.GradientDescentOptimizer(learning_rate)
     training_op = optimizer.minimize(loss)
@@ -60,7 +62,7 @@ with tf.name_scope("eval"):
 init = tf.global_variables_initializer()
 saver = tf.train.Saver
 
-n_epochs = 5000
+n_epochs = 50000
 
 with tf.Session() as sess:
     init.run()
@@ -79,8 +81,11 @@ with tf.Session() as sess:
             X: sess.run(X_test_oh),
             y: Y_test
         })
-        if epoch % 500 == 0:
-            print(epoch, "train acc:", acc_train, "test acc:", acc_test)
+        if (epoch + 1) % 100 == 0:
+            print(epoch + 1, "train acc:", acc_train, "test acc:", acc_test)
+            X_train, X_test, Y_train, Y_test = train_test_split(X_encoded, Y_encoded, test_size=0.4)
+            X_train_oh = tf.layers.flatten(tf.one_hot(X_train, depth=4))
+            X_test_oh = tf.layers.flatten(tf.one_hot(X_test, depth=4))
     Z = logits.eval(feed_dict={X: sess.run(X_kaggle_oh)})
     y_pred = np.argmax(Z, axis=1)
 
