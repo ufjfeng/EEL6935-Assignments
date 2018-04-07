@@ -83,9 +83,6 @@ with tf.Session() as sess:
         })
         if (epoch + 1) % 100 == 0:
             print(epoch + 1, "train acc:", acc_train, "test acc:", acc_test)
-            X_train, X_test, Y_train, Y_test = train_test_split(X_encoded, Y_encoded, test_size=0.4)
-            X_train_oh = tf.layers.flatten(tf.one_hot(X_train, depth=4))
-            X_test_oh = tf.layers.flatten(tf.one_hot(X_test, depth=4))
     Z = logits.eval(feed_dict={X: sess.run(X_kaggle_oh)})
     y_pred = np.argmax(Z, axis=1)
 
